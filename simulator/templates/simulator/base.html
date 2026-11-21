@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}Simulador de congestión vial{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'simulator/css/styles.css' %}">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="{% static 'simulator/js/api.js' %}"></script>
+  <script defer src="{% static 'simulator/js/matrix.js' %}"></script>
+  <script defer src="{% static 'simulator/js/charts.js' %}"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-width">
+      <a class="brand" href="{% url 'index' %}">Tráfico Markov</a>
+      <span class="header-note">Simulador didáctico de congestión vial</span>
+    </div>
+  </header>
+  <main class="page-width">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="page-width">Modelo educativo de estados de tráfico en bloques de 30 minutos.</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{% load l10n %}
+<div class="table-scroll">
+  <table class="matrix-table" aria-label="Matriz de transición editable">
+    <thead>
+      <tr>
+        <th scope="col">Desde / hacia</th>
+        {% for state in states %}
+        <th scope="col">{{ state }}</th>
+        {% endfor %}
+        <th scope="col">Suma</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in matrix_rows %}
+      <tr data-matrix-row="{{ row.index }}">
+        <th scope="row">{{ row.label }}</th>
+        {% for cell in row.cells %}
+        <td>
+          <label class="visually-hidden" for="matrix-{{ cell.row }}-{{ cell.column }}">
+            Probabilidad de {{ cell.row_label }} a {{ cell.column_label }}
+          </label>
+          <input
+            id="matrix-{{ cell.row }}-{{ cell.column }}"
+            class="matrix-cell"
+            type="number"
+            min="0"
+            max="1"
+            step="any"
+            value="{% localize off %}{{ cell.value }}{% endlocalize %}"
+            inputmode="decimal"
+            data-matrix-cell="true"
+            data-row="{{ cell.row }}"
+            data-column="{{ cell.column }}"
+            aria-label="Probabilidad de {{ cell.row_label }} a {{ cell.column_label }}"
+          >
+        </td>
+        {% endfor %}
+        <td class="row-total">
+          <output data-row-sum="{{ forloop.counter0 }}" aria-label="Suma de fila {{ forloop.counter }}">
+            1.0000
+          </output>
+          <span class="row-error" data-row-error="{{ forloop.counter0 }}" aria-live="polite"></span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="matrix-help" id="matrix-help">
+  Los cambios se verifican en el navegador y en el servidor antes de habilitar la simulación.
+</p>

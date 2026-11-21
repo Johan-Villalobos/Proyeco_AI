@@ -1,0 +1,135 @@
+{% extends "simulator/base.html" %}
+{% load static %}
+
+{% block title %}Simulador de congestión vial{% endblock %}
+
+{% block content %}
+<div
+  class="simulator"
+  id="simulator-app"
+  data-scenarios-url="{% url 'scenarios_api' %}"
+  data-simulate-url="{% url 'simulate_api' %}"
+  data-validate-url="{% url 'validate_api' %}"
+  data-history-url="{% url 'history_api' %}"
+>
+  <section class="intro">
+    <p class="eyebrow">Cadena de Markov · pasos de 30 minutos</p>
+    <h1>Simula el estado del tráfico</h1>
+    <p class="intro-copy">
+      Elige un escenario, ajusta la matriz de transición y observa cómo cambia
+      la probabilidad de cada estado con el paso del tiempo.
+    </p>
+  </section>
+
+  <p class="didactic-notice">
+    Las probabilidades y matrices son valores ilustrativos didácticos; no representan datos reales.
+  </p>
+
+  <form class="csrf-token" aria-hidden="true">
+    {% csrf_token %}
+  </form>
+
+  <section class="panel setup-panel" aria-labelledby="setup-title">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Configuración</p>
+        <h2 id="setup-title">Escenario y estado inicial</h2>
+      </div>
+    </div>
+    <div class="setup-grid">
+      <div class="field">
+        <label for="scenario-selector">Escenario</label>
+        <select id="scenario-selector" name="scenario">
+          {% for scenario in scenarios %}
+          <option value="{{ scenario.pk }}"{% if default_scenario.pk == scenario.pk %} selected{% endif %}>
+            {{ scenario.name }}
+          </option>
+          {% endfor %}
+        </select>
+        <p class="field-description" id="scenario-description">
+          {{ default_scenario.description }}
+        </p>
+      </div>
+      <div class="field">
+        <label for="initial-state">Estado inicial</label>
+        <select id="initial-state" name="initial_state">
+          {% for state in states %}
+          <option value="{{ forloop.counter0 }}"{% if forloop.counter0 == default_state %} selected{% endif %}>
+            {{ state }}
+          </option>
+          {% endfor %}
+        </select>
+        <p class="field-description">Se usa como estado de partida de la simulación.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel matrix-panel" aria-labelledby="matrix-title">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Matriz de transición</p>
+        <h2 id="matrix-title">Edita las probabilidades</h2>
+        <p class="section-copy">Cada fila debe contener valores entre 0 y 1 y sumar 1.</p>
+      </div>
+      <button class="button button-secondary" id="reset-matrix" type="button">
+        Restaurar escenario
+      </button>
+    </div>
+
+    {% include "simulator/partials/matrix_editor.html" %}
+
+    <div class="validation-row">
+      <p class="validation-message" id="matrix-status" role="status" aria-live="polite">
+        Comprobando matriz…
+      </p>
+      <button class="button button-primary" id="simulate-button" type="button" disabled>
+        Simular
+      </button>
+    </div>
+  </section>
+
+  <section class="panel results-panel" id="results-section" aria-labelledby="results-title" hidden>
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Resultados</p>
+        <h2 id="results-title">Distribución de probabilidades</h2>
+      </div>
+    </div>
+    <p class="interpretation" id="interpretation" aria-live="polite"></p>
+    {% include "simulator/partials/results_table.html" %}
+    <div class="charts-grid">
+      <figure class="chart-card">
+        <figcaption>
+          <h3>Evolución por paso</h3>
+          <p>Probabilidad de cada estado entre el paso 0 y el 10.</p>
+        </figcaption>
+        <div class="chart-container">
+          <canvas id="trajectory-chart" aria-label="Gráfica de evolución de probabilidades"></canvas>
+        </div>
+      </figure>
+      <figure class="chart-card">
+        <figcaption>
+          <h3>Comparación por horizonte</h3>
+          <p>Distribución en 1, 3, 5 y 10 pasos.</p>
+        </figcaption>
+        <div class="chart-container">
+          <canvas id="comparison-chart" aria-label="Gráfica comparativa por horizonte"></canvas>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="panel history-panel" aria-labelledby="history-title">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Actividad</p>
+        <h2 id="history-title">Historial reciente</h2>
+      </div>
+    </div>
+    <p class="history-status" id="history-status" role="status" aria-live="polite">
+      Cargando historial…
+    </p>
+    <ol class="history-list" id="history-list"></ol>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="table-scroll">
+  <table class="results-table" id="results-table">
+    <caption class="visually-hidden">Probabilidades por horizonte y estado</caption>
+    <thead>
+      <tr>
+        <th scope="col">Horizonte</th>
+        {% for state in states %}
+        <th scope="col">{{ state }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for horizon in horizon_rows %}
+      <tr id="result-row-{{ horizon.steps }}">
+        <th scope="row">{{ horizon.steps }} paso{{ horizon.steps|pluralize:"s" }} ({{ horizon.time_label }})</th>
+        {% for state in states %}
+        <td data-result="{{ horizon.steps }}-{{ forloop.counter0 }}">—</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
